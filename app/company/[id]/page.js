@@ -8,7 +8,7 @@ const loans = [
   }
 ]
 
-export default function Home() {
+export default function CompanyHomePage() {
   const params = useParams();
   return (
     <div className='p-5'>
