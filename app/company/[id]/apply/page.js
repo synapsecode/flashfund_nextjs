@@ -68,8 +68,7 @@ const CompanyForm = () => {
     })
     console.log(flashFund);
     console.log(flashFund.contractAddress)
-
-
+    localStorage.setItem('CURRENT_LOAN', flashFund.contractAddress);
     alert('Form submitted successfully!');
   };
 

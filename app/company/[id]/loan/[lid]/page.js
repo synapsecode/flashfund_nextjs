@@ -9,6 +9,7 @@ export default function IndividualLoanPage() {
     const [infusionCapital, setInfusionCapital] = useState(0);
     const [loanshareName, setLoanshareName] = useState('$NONE');
     const [outstandingShares, setOutstandingShares] = useState(0);
+    const [currentContract, setCurrentContract] = useState('');
 
 
     //New Variables
@@ -25,6 +26,7 @@ export default function IndividualLoanPage() {
         setInitialValuation(1_000_000);
         setCurrentValuation(1_000_000);
         setOutstandingShares(5400);
+        setCurrentContract(localStorage.getItem('CURRENT_LOAN'));
     }
 
     useEffect(() => {
@@ -61,11 +63,11 @@ export default function IndividualLoanPage() {
             'amountPayable': amountPayable,
         };
 
-        console.log()
+        // console.log()
 
-        const formData = new FormData();
-        formData.append("currentValuation", currentValuation);
-        formData.append("file", file);
+        // const formData = new FormData();
+        // formData.append("currentValuation", currentValuation);
+        // formData.append("file", file);
 
         // try {
         //   const response = await fetch("/api/distribute", {
@@ -90,6 +92,7 @@ export default function IndividualLoanPage() {
                 <h1 className="text-2xl font-semibold text-gray-800 mb-4">
                     Repay Loan (${loanshareName})
                 </h1>
+                <p>ContractAddress: {currentContract}</p><br />
                 <h1 className='text-md text-gray-600 mt-0'>Outstanding Shares: {outstandingShares}</h1>
                 <br />
                 <form className="space-y-6">

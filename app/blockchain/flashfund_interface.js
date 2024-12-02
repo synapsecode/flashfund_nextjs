@@ -27,6 +27,13 @@ const platformClient = new ViemClient({
 
 export class FlashFundInterface {
 
+    static fromContractAddress = async ({ contractAddress }) => {
+        const factory = ViemContract.fromCompiledContract({ compiledContract: FlashFundJSON, deployedAddress: contractAddress });
+        factory.connect({ client: platformClient });
+        return factory;
+    }
+
+
     static createMetaMaskClient = async ({ wallet }) => {
         const { ethereum } = window
         if (!ethereum) return alert("Please install MetaMask!")
