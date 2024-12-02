@@ -65,4 +65,12 @@ contract LoanShareContract {
             payable(shareholder).transfer(payout);
         }
     }
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    function recieveLoanAmount() public view returns (uint) {
+        return address(contractCreator).balance;
+    }
 }
