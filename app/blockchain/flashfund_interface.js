@@ -1,9 +1,8 @@
-import FlashFundJSON from "../../../artifacts/contracts/FlashFund.sol/FlashFund.json";
+import FlashFundJSON from "../../artifacts/contracts/LoanShare.sol/LoanShareContract.json";
 import { ganache } from "./ganache";
 import { ViemClient, ViemContract } from "./viemc";
 import { createWalletClient, formatEther, http, parseEther, publicActions, getContract, custom } from "viem";
 import { privateKeyToAccount } from "viem/accounts"
-
 
 //============GANACHE==============
 const CHAIN = ganache;
