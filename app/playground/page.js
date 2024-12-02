@@ -63,7 +63,7 @@ export default function CompanyHomePage() {
             <h1 className="center text-5xl">User Dashboard</h1>
             <ConnectButton />
             <br />
-            <h2 className='text-2xl'>Buy Shares ({currentContract})</h2>
+            <h2 className='text-2xl'>Buy Shares ({loanShareName}) ({currentContract})</h2>
 
             <div>
                 <label htmlFor="shares">Outstanding Number of Shares: {outstandingShares} | Amount left to fund: {outstandingShares * costPerShare}ETH</label>

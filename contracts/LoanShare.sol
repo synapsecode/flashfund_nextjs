@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 contract LoanShareContract {
-    address public contractCreator;
+    address payable public contractCreator;
     uint256 public initialValuation;
     uint256 public infusedCapital;
     uint256 public loanShare;
@@ -22,7 +22,7 @@ contract LoanShareContract {
         require(_loanShare > 0, "Loan share value must be greater than 0");
         require(_infusedCapital > 0, "Infused capital must be greater than 0");
 
-        contractCreator = msg.sender;
+        contractCreator = payable(msg.sender);
         initialValuation = _initialValuation;
         infusedCapital = _infusedCapital;
         loanShare = _loanShare;
@@ -52,15 +52,13 @@ contract LoanShareContract {
         sharePurchaseCount++;
     }
 
-    function repay() external onlyCreator {
-        uint256 totalFunds = address(this).balance;
-        require(totalFunds > 0, "No funds to distribute");
-
+    function repay() external payable onlyCreator {
+        //Accept the Funds here
         // Distribute funds proportionately to all shareholders
         for (uint256 i = 0; i < sharePurchaseCount; i++) {
             address shareholder = users[i];
             uint256 sharesOwned = shareRegistry[shareholder];
-            uint256 payout = (totalFunds * sharesOwned) /
+            uint256 payout = (address(this).balance * sharesOwned) /
                 (infusedCapital / loanShare);
             payable(shareholder).transfer(payout);
         }
@@ -70,7 +68,8 @@ contract LoanShareContract {
         return address(this).balance;
     }
 
-    function recieveLoanAmount() public view returns (uint) {
+    function recieveLoanAmount() public returns (uint) {
+        contractCreator.transfer(address(this).balance);
         return address(contractCreator).balance;
     }
 }

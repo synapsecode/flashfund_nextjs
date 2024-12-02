@@ -1,6 +1,10 @@
 'use client'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react';
+import { FlashFundInterface } from '@/app/blockchain/flashfund_interface';
+import ConnectButton from "@/app/components/connectButton";
+import { useWallet } from '@/app/Context/wallet';
+import { setBalance } from 'viem/actions';
 
 export default function IndividualLoanPage() {
     const params = useParams();
@@ -10,6 +14,9 @@ export default function IndividualLoanPage() {
     const [loanshareName, setLoanshareName] = useState('$NONE');
     const [outstandingShares, setOutstandingShares] = useState(0);
     const [currentContract, setCurrentContract] = useState('');
+    const { wallet } = useWallet();
+    const [contractInstance, setContractInstance] = useState();
+
 
 
     //New Variables
@@ -18,15 +25,31 @@ export default function IndividualLoanPage() {
     const [interestPercentage, setInterestPercentage] = useState(10); // Example interest rate
     const [payableAmount, setPayableAmount] = useState(0);
     const [interest, setInterest] = useState(0);
+    const [loanShareName, setLoanShareName] = useState('');
+    const [contractBalance, setContractBalance] = useState(0);
 
-    const getLoanDetails = async () => {
-        console.log('Fetching Loan Details');
-        setInfusionCapital(100_000);
-        setLoanshareName('ACME');
-        setInitialValuation(1_000_000);
-        setCurrentValuation(1_000_000);
-        setOutstandingShares(5400);
-        setCurrentContract(localStorage.getItem('CURRENT_LOAN'));
+    const initialize = async () => {
+        const addr = localStorage.getItem('CURRENT_LOAN');
+        setCurrentContract(addr);
+
+        const fund = await FlashFundInterface.fromContractAddress({ contractAddress: addr });
+        setContractInstance(fund);
+
+        const loanShareName = await FlashFundInterface.getLoanShareName({ flashFund: fund });
+        setLoanShareName(loanShareName);
+
+        const outstanding = await FlashFundInterface.getOutstandingShares({ flashFund: fund });
+        setOutstandingShares(outstanding);
+
+        const iv = await FlashFundInterface.getInitialValuation({ flashFund: fund });
+        setInitialValuation(iv);
+        setCurrentValuation(iv)
+
+        const ic = await FlashFundInterface.getInfusedCapital({ flashFund: fund });
+        setInfusionCapital(ic);
+
+        const bal = await FlashFundInterface.getFlashFundBalance({ flashFund: fund });
+        setContractBalance(bal);
     }
 
     useEffect(() => {
@@ -41,7 +64,7 @@ export default function IndividualLoanPage() {
 
     //initState
     useEffect(() => {
-        getLoanDetails();
+        initialize();
     }, []);
 
     const handleValuationChange = (e) => {
@@ -58,40 +81,44 @@ export default function IndividualLoanPage() {
             alert("Please fill out all fields!");
             return;
         }
+        console.log(`Pauyable: ${payableAmount}`)
+        const client = await FlashFundInterface.createMetaMaskClient({ wallet })
 
-        const payload = {
-            'amountPayable': amountPayable,
-        };
+        const addr = localStorage.getItem('CURRENT_LOAN');
+        const fund = await FlashFundInterface.fromContractAddress({ contractAddress: addr });
 
-        // console.log()
-
-        // const formData = new FormData();
-        // formData.append("currentValuation", currentValuation);
-        // formData.append("file", file);
-
-        // try {
-        //   const response = await fetch("/api/distribute", {
-        //     method: "POST",
-        //     body: formData,
-        //   });
-
-        //   if (response.ok) {
-        //     alert("Distribution successful!");
-        //   } else {
-        //     alert("Failed to distribute. Please try again.");
-        //   }
-        // } catch (error) {
-        //   console.error("Error:", error);
-        //   alert("Something went wrong. Please try again.");
-        // }
+        await FlashFundInterface.repayLoan({ flashfund: fund, client: client, amount: payableAmount });
+        await initialize();
     };
+
+    const recieveLoan = async () => {
+        const client = await FlashFundInterface.createMetaMaskClient({ wallet });
+        await FlashFundInterface.recieveLoanAmount({ flashfund: contractInstance, client: client });
+        await initialize();
+        alert('Transaction Complete!');
+    }
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+
             <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg">
+                <ConnectButton />
                 <h1 className="text-2xl font-semibold text-gray-800 mb-4">
-                    Repay Loan (${loanshareName})
+                    Recieve Loan Value ({contractBalance} ETH)
                 </h1>
+                <button
+                    type="button"
+                    onClick={recieveLoan}
+                    className="w-full bg-purple-600 text-white font-medium py-2 px-4 rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    Recieve Loan Value
+                </button>
+                <br />  <br />
+
+                <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+                    Repay Loan (${loanShareName == '' ? 'ACME' : loanshareName})
+                </h1>
+                <p>Original Loan Amount: {infusionCapital} ETH</p><br />
                 <p>ContractAddress: {currentContract}</p><br />
                 <h1 className='text-md text-gray-600 mt-0'>Outstanding Shares: {outstandingShares}</h1>
                 <br />
@@ -139,13 +166,13 @@ export default function IndividualLoanPage() {
                         <div className="flex justify-between">
                             <span className="text-sm text-gray-600">Interest Amount</span>
                             <span className="text-sm text-gray-800 font-medium">
-                                ${interest.toFixed(2)}
+                                {interest.toFixed(2)} ETH
                             </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-sm text-gray-600">Total Payable</span>
                             <span className="text-sm text-gray-800 font-medium">
-                                ${payableAmount.toFixed(2)}
+                                {payableAmount.toFixed(2)} ETH
                             </span>
                         </div>
                     </div>

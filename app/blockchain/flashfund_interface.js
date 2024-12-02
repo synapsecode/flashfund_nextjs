@@ -118,10 +118,11 @@ export class FlashFundInterface {
         flashfund.connect({ client: platformClient });
     }
 
-    static repayLoan = async ({ flashfund, client }) => {
+    static repayLoan = async ({ flashfund, client, amount }) => {
         flashfund.connect({ client }); //connect the current client to the provided contract
         await flashfund.write({
             method: 'repay',
+            valueInEth: String(amount),
         });
         flashfund.connect({ client: platformClient });
     }
