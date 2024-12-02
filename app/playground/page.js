@@ -62,13 +62,13 @@ export default function CompanyHomePage() {
             </button>
 
             <br />
-            <button
+            {/* <button
                 type="submit"
                 className="mt-2 w-full py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onClick={() => flashfund_e2e({ initialValuation: '1', infusedCapital: '0.2', loanShare: '0.001', loanShareName: 'ACME' })}
             >
                 Run End2End Test
-            </button>
+            </button> */}
         </div>
     );
 }

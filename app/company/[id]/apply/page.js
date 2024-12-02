@@ -1,6 +1,9 @@
 'use client'
 import { useParams } from 'next/navigation'
 import React, { useState } from 'react';
+import ConnectButton from "../../../components/connectButton";
+import { useWallet } from '@/app/Context/wallet';
+import { FlashFundInterface } from '@/app/blockchain/flashfund_interface';
 
 const loans = [
   {
@@ -18,6 +21,7 @@ const CompanyForm = () => {
   const [loanshareValue, setLoanshareValue] = useState('');
   const [loanshareName, setLoanshareName] = useState('');
   const [supportingDocs, setSupportingDocs] = useState(null);
+  const { wallet } = useWallet();
 
   // Handle numeric input formatting
   const handleCurrencyChange = (e, setState) => {
@@ -34,7 +38,7 @@ const CompanyForm = () => {
   };
 
   // Form submission handler
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!initialValuation || !infusionCapital || !loanshareValue || !loanshareName || !supportingDocs) {
       alert('Please fill out all fields');
@@ -50,18 +54,35 @@ const CompanyForm = () => {
       supportingDocs,
     });
 
+    const companyClient = await FlashFundInterface.createMetaMaskClient({ wallet })
+    console.log(companyClient);
+
+    //   static createFlashFund = async ({ client, initialValuation, infusedCapital, loanShare, loanShareName }) => {
+
+    const flashFund = await FlashFundInterface.createFlashFund({
+      client: companyClient,
+      initialValuation: String(initialValuation),
+      infusedCapital: String(infusionCapital),
+      loanShare: String(loanshareValue),
+      loanshareName: String(loanshareName),
+    })
+    console.log(flashFund);
+    console.log(flashFund.contractAddress)
+
+
     alert('Form submitted successfully!');
   };
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white rounded-xl shadow-md mt-8">
+      <ConnectButton />
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Apply for FlashFund</h1>
 
       <form onSubmit={handleSubmit}>
 
         {/* Initial Valuation */}
         <div className="mb-6">
-          <label htmlFor="initialValuation" className="block text-sm font-medium text-gray-700">Initial Valuation (USD)</label>
+          <label htmlFor="initialValuation" className="block text-sm font-medium text-gray-700">Initial Valuation (ETH)</label>
           <input
             type="text"
             id="initialValuation"
@@ -75,7 +96,7 @@ const CompanyForm = () => {
 
         {/* Infusion Capital */}
         <div className="mb-6">
-          <label htmlFor="infusionCapital" className="block text-sm font-medium text-gray-700">Infusion Capital (USD)</label>
+          <label htmlFor="infusionCapital" className="block text-sm font-medium text-gray-700">Infusion Capital (ETH)</label>
           <input
             type="number"
             id="infusionCapital"
@@ -92,7 +113,7 @@ const CompanyForm = () => {
 
         {/* Loanshare Value */}
         <div className="mb-6">
-          <label htmlFor="loanshareValue" className="block text-sm font-medium text-gray-700">Loanshare Value (USD)</label>
+          <label htmlFor="loanshareValue" className="block text-sm font-medium text-gray-700">Loanshare Value (ETH)</label>
           <input
             type="text"
             id="loanshareValue"
